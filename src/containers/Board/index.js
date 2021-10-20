@@ -1,28 +1,58 @@
-import React, { memo, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { Card, Col, Progress, Row, Tag } from "antd";
+import axios from "axios";
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { createStructuredSelector } from 'reselect';
-import { compose } from 'redux';
-import { Button } from 'antd';
 
-import { useInjectSaga } from 'utils/injectSaga';
-import { useInjectReducer } from 'utils/injectReducer';
-import { getPostsAction, handleModalShowAction } from './board.actions';
-import reducer from './board.reducer';
-import saga from './board.saga';
-
-import WritePostModal from './WritePostModal';
-import PostTable from './PostTable';
 
 const key = 'board';
+const PropertyCard = ({ data }) => {
+  const { cityArea,
 
+    image,
+    investmentMultiple,
+    name,
+    numberOfInvestors,
+    percentageRaised,
+    targetAmount,
+  } = data
+  return <Card >
+    <Row gutter={[16, 16]}>
+      <Col span={24}>
+        <h2 style={{ color: "#25B864" }}>{name}</h2>
+      </Col>
+      <Col span={24}>
+        <img style={{ maxHeight: "300px", width: "100%" }} src={image}></img>
+      </Col>
+      <Col span={24}>
+
+        Percentage Booked:  <Progress
+          width={40}
+          type="circle"
+          strokeColor={{
+            from: '#108ee9',
+            to: '#87d068',
+          }}
+          percent={percentageRaised}
+          status="active"
+        />
+
+
+
+      </Col>
+      <Col span={24}>
+
+        <Tag> Number of Investors : {numberOfInvestors}</Tag>
+      </Col>
+    </Row>
+  </Card>
+}
 function Board(props) {
-  useInjectReducer({ key, reducer });
-  useInjectSaga({ key, saga });
 
+  const [properties, setProperties] = useState([])
   useEffect(() => {
-    props.getPosts();
+    axios.get('http://localhost:8080/api/property').then(res => {
+      setProperties(res.data)
+    })
   }, []);
 
   return (
@@ -31,36 +61,18 @@ function Board(props) {
         <title>Board</title>
         <meta name="description" content="Description of Board" />
       </Helmet>
-      <WritePostModal />
-      <div style={{ marginBottom: 16 }}>
-        <Button type="primary" onClick={props.handleModalShow}>
-          Write
-        </Button>
-      </div>
-      <PostTable />
+      <Row gutter={[30, 30]} style={{ padding: "30px" }}>
+        {properties.map(prop => {
+          return <Col span={7}><PropertyCard data={prop} />
+          </Col>
+        })}
+      </Row>
+
+
     </>
   );
 }
 
-Board.propTypes = {
-  getPosts: PropTypes.func,
-  handleModalShow: PropTypes.func,
-};
 
-const mapStateToProps = createStructuredSelector({
-});
 
-const mapDispatchToProps = dispatch => ({
-  getPosts: () => dispatch(getPostsAction()),
-  handleModalShow: () => dispatch(handleModalShowAction()),
-});
-
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-export default compose(
-  withConnect,
-  memo,
-)(Board);
+export default Board;

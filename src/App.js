@@ -1,12 +1,10 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { Switch, Route } from 'react-router-dom';
 import { Layout } from 'antd';
 
 import Header from 'components/Header';
 import Sider from 'components/Sider';
-import PrivateRoute from 'components/PrivateRoute';
-import mainRoutes from 'routes/mainRoutes';
+import Board from "containers/Board"
 
 export default function App() {
   return (
@@ -21,9 +19,7 @@ export default function App() {
       <Layout>
         <Sider />
         <Layout>
-          <Layout.Content style={{ margin: '16px' }}>
-            <Switch>{mainRoutes.map(route => (route.auth ? <PrivateRoute {...route} /> : <Route {...route} />))}</Switch>
-          </Layout.Content>
+          <Board />
           <Layout.Footer style={{ textAlign: 'center' }}>Create React Ant Design Boilerplate</Layout.Footer>
         </Layout>
       </Layout>
